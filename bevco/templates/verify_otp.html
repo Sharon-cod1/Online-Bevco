@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify OTP{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2 class="text-center mb-4">Verify OTP</h2>
+        <p class="text-center">We've sent an OTP to {{ phone }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_otp" class="form-label">Enter OTP</label>
+                {{ form.otp }}
+                {% if form.otp.errors %}
+                    <div class="text-danger">{{ form.otp.errors }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Verify</button>
+        </form>
+    </div>
+
+    {% block extra_js %}
+    <script>
+        $(document).ready(function() {
+            $('#id_otp').addClass('form-control otp-input');
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

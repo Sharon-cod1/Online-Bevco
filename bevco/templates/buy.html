@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - {{ product.name }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <h3>{{ product.name }}</h3>
+                    <p class="text-muted">{{ product.category }}</p>
+                    <p>{{ product.description }}</p>
+                    <h4 class="my-3">₹{{ product.price }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Complete Your Purchase</h3>
+                    <form id="payment-form" action="{% url 'payment_success' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="razorpay_order_id" value="{{ order.id }}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <button id="rzp-button" class="btn btn-primary w-100">Pay ₹{{ product.price }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_js %}
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        var options = {
+            "key": "{{ RAZORPAY_KEY_ID }}",
+            "amount": "{{ order.amount }}",
+            "currency": "INR",
+            "name": "BEVCO",
+            "description": "Payment for {{ product.name }}",
+            "image": "",
+            "order_id": "{{ order.id }}",
+            "handler": function (response) {
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+                document.getElementById('payment-form').submit();
+            },
+            "prefill": {
+                "name": "",
+                "email": "",
+                "contact": ""
+            },
+            "notes": {
+                "address": ""
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+        
+        var rzp1 = new Razorpay(options);
+        
+        document.getElementById('rzp-button').onclick = function(e) {
+            e.preventDefault();
+            rzp1.open();
+        }
+    </script>
+    {% endblock %}
+{% endblock %}
